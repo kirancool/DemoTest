@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:context="http://www.springframework.org/schema/context"
+ xmlns:mvc="http://www.springframework.org/schema/mvc" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+ http://www.springframework.org/schema/beans/spring-beans.xsd 
+ http://www.springframework.org/schema/context 
+ http://www.springframework.org/schema/context/spring-context.xsd 
+ http://www.springframework.org/schema/mvc 
+ http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+ <mvc:annotation-driven />
+ <context:component-scan base-package="com.stock" />
+ <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+ <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+ <mvc:resources mapping="/favicon.ico" location="/favicon.ico" />
+ <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		
+		<property name="locations">
+			<list>
+				<value>classpath://stock.properties</value>
+		  </list>
+		</property>
+	</bean>
+	<bean id="sparkContext" class="org.apache.spark.SparkContext">	
+		<constructor-arg value="#{sparkInfo.getSparkConfiguration()}" /> 
+	</bean>
+	<bean id="hiveContext" class="org.apache.spark.sql.hive.HiveContext">
+		<constructor-arg ref="sparkContext" />
+	</bean>
+		<bean id="hdfsInfo" class="com.stock.bean.HDFSInfo">
+		<property name="hdfsURL" value="${stock.hdfs.URI}"></property>
+		<property name="schemaPath" value="${stock.schema.Path}"></property>
+	</bean>
+	<bean id="sparkInfo" class="com.stock.bean.SparkInfo">
+		<property name="appName" value="stock"></property>
+		<property name="master" value="local[*]"></property>
+		<property name="dynamicAllocation" value="false"></property>
+		<property name="executorMemory" value="2g"></property>
+		</bean>
+		<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+		 <!-- setting maximum upload size -->
+		<property name="maxUploadSize" value="10000000000" />
+		</bean>
+</beans>
